@@ -103,6 +103,7 @@ const CheckoutPage = ({session}) => {
           {items.length > 0 && (
             <div className="flex flex-col bg-white p-10 shadow-md">
               <>
+                <p className="my-2 text-sm">Use card: 4242424242424242 at checkout</p>
                 <h2 className="whitespace-nowrap mx-auto">
                   Subtotal ({totalQuantity} items)
                   <span className="font-bold ml-4">
