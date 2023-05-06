@@ -10,11 +10,11 @@ const handler = async(req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
-
+    console.log(req.body)
     if (
       validator.isEmpty(name) ||
       !validator.isEmail(email) ||
-      !validator.isStrongPassword(password) ||
+      validator.isEmpty(password) ||
       !validator.equals(password, confirmPassword)
     ) {
         res.status(401).json({ message: "Incorrect inputs! Please check and provide valid inputs" })
@@ -43,7 +43,7 @@ const handler = async(req, res) => {
           password: hashedPassword
       })
 
-      const savedUser = await user.save()
+    const savedUser = await user.save()
       res.status(201).json({message: "Signup successful!", user: savedUser.name})
       await mongoose.disconnect()
       return;

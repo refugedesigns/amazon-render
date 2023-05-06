@@ -6,7 +6,7 @@ export const connectDb = async() => {
 
      await mongoose
        .connect(
-         `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.uv3ti.mongodb.net/amazon?retryWrites=true&w=majority`,
+        process.env.MONGO_URI,
          {
            useCreateIndex: true,
            useNewUrlParser: true,

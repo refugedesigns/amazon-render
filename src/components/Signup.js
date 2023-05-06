@@ -40,9 +40,14 @@ const Signup = () => {
         "Content-Type": "application/json",
       },
     })
-      .then((res) => res.json()).then(data => router.replace("/signin"))
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message === "Signup successful!") {
+          router.replace("/signin")
+        }
+      })
       .catch((err) => console.log(err));
-    reset();
+    // reset();
   };
 
   return (
