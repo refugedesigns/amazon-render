@@ -8,7 +8,7 @@ const Order = require("../../models/orders")
 const User = require("../../models/user")
 
 export default async (req, res) => {
-    
+
     if (req.method === "POST") {
         const requestBuffer = await buffer(req)
         const payload = requestBuffer.toString()
@@ -27,7 +27,7 @@ export default async (req, res) => {
         // Handle the checkout.session.completed event
         if (event.type === "checkout.session.completed") {
             const session = event.data.object
-
+            console.log(session)
             try {
                 await connectDb()
             } catch (err) {
@@ -49,7 +49,7 @@ export default async (req, res) => {
                         line1: session.shipping.address.line1,
                         line2: session.shipping.address.line2,
                         postalCode: session.shipping.address.postal_code,
-                        state: session.shipping.address.state
+                        state: session.shipping.address.state ?? "N/A",
                     }
                 }
 

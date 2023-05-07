@@ -50,7 +50,7 @@ const orderSchema = new Schema(
         },
         state: {
           type: String,
-          required: true,
+          required: false,
         },
       },
     },
@@ -62,3 +62,4 @@ const orderSchema = new Schema(
 
 module.exports =
   mongoose.models["Order"] || mongoose.model("Order", orderSchema);
+ 
