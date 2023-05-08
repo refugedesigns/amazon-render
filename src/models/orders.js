@@ -20,7 +20,7 @@ const orderSchema = new Schema(
       type: String,
       required: true,
     },
-    images: [String],
+    items: Array,
     amount: {
       type: Number,
       required: true,

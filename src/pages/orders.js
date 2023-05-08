@@ -27,7 +27,7 @@ const OrdersPage = ({ session, orders }) => {
               amount={order.amount}
               shippingAmount={order.shippingAmount}
               date={order.createdAt}
-              images={order.images}
+              images={order.items}
               items={order.items}
             />
           ))}
@@ -65,19 +65,16 @@ export async function getServerSideProps(context) {
   const stripeOrders = await Orders.find({ email: session.user.email }).sort({
     createdAt: -1,
   });
+  
+  console.log(stripeOrders)
 
   const orders = await Promise.all(
     stripeOrders.map(async (order) => ({
       id: order.stripeOrderId,
       amount: order.amount,
       shippingAmount: order.shippingAmount,
-      images: order.images,
       createdAt: order.createdAt.toISOString(),
-      items: (
-        await stripe.checkout.sessions.listLineItems(order.stripeOrderId, {
-          limit: 100,
-        })
-      ).data,
+      items: order.items ?? [],
     }))
   );
 

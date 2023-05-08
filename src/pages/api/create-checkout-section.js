@@ -24,20 +24,20 @@ const handler = async(req, res) => {
     }))
 
     const stripeSession = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        shipping_rates: ['shr_1JH3L4EGeVpld5Y1Y4E5N2CX'],
-        shipping_address_collection: {
-            allowed_countries: ['GB', 'US', 'CA']
-        },
-        line_items: transformedItems,
-        mode: "payment",
-        success_url: `${process.env.HOST}/success`,
-        cancel_url: `${process.env.HOST}/checkout`,
-        metadata: {
-            email,
-            images: JSON.stringify(items.map(item => item.image))
-        }
-    })
+      payment_method_types: ["card"],
+      shipping_rates: ["shr_1JH3L4EGeVpld5Y1Y4E5N2CX"],
+      shipping_address_collection: {
+        allowed_countries: ["GB", "US", "CA"],
+      },
+      line_items: transformedItems,
+      mode: "payment",
+      success_url: `${process.env.HOST}/success`,
+      cancel_url: `${process.env.HOST}/checkout`,
+      metadata: {
+        email,
+        items: JSON.stringify(items.map((item) => ({image: item.image, title: item.title, quantity: item.quantity}))),
+      },
+    });
 
     res.status(200).json({id: stripeSession.id})
 }

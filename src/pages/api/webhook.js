@@ -18,59 +18,74 @@ export default async (req, res) => {
 
         // Verify that the event posted came from stripe
         try {
-            event = stripe.webhooks.constructEvent(payload, sig, endpointSecrete)
+          event = stripe.webhooks.constructEvent(payload, sig, endpointSecrete);
         } catch (err) {
-            console.log("Error!", err.message)
-            return res.status(400).json({ message: `webhook error! ${err.message}` })
+          console.log("Error!", err.message);
+          return res
+            .status(400)
+            .json({ message: `webhook error! ${err.message}` });
         }
-
         // Handle the checkout.session.completed event
         if (event.type === "checkout.session.completed") {
-            const session = event.data.object
-            console.log(session)
-            try {
-                await connectDb()
-            } catch (err) {
-                return res.status(500).json({message: "Failed to connect to database!"})
-            }
+          console.log(event);
+          const session = event.data.object;
+          try {
+            await connectDb();
+          } catch (err) {
+            return res
+              .status(500)
+              .json({ message: "Failed to connect to database!" });
+          }
 
-            const order = new Order({
-                name: session.shipping.name,
-                stripeOrderId: session.id,
-                email: session.metadata.email,
-                stripeCustomerId: session.customer,
-                images: JSON.parse(session.metadata.images),
-                amount: session.amount_subtotal / 100,
-                shippingAmount: session.total_details.amount_shipping / 100,
-                shipping: {
-                    address: {
-                        city: session.shipping.address.city,
-                        country: session.shipping.address.country,
-                        line1: session.shipping.address.line1,
-                        line2: session.shipping.address.line2,
-                        postalCode: session.shipping.address.postal_code,
-                        state: session.shipping.address.state ?? "N/A",
-                    }
-                }
+          const existingOrder = await Order.findOne({
+            stripeOrderId: session.id,
+          });
 
-            })
-
-            const savedOrder = await order.save()
+            if (existingOrder) return;
             
-            const user = await User.findOne({ email: savedOrder.email })
-            
-            if (!user) {
-                await mongoose.disconnect()
-                return res.status(404).json({message: "No user with this email found!"})
-            }
+            const items = JSON.parse(session.metadata.items);
 
-            user.orders.push(savedOrder)
+          const order = new Order({
+            name: session.shipping.name,
+            stripeOrderId: session.id,
+            email: session.metadata.email,
+            stripeCustomerId: session.customer,
+            amount: session.amount_subtotal / 100,
+            items: items,
+            shippingAmount: session.total_details.amount_shipping / 100,
+            shipping: {
+              address: {
+                city: session.shipping.address.city,
+                country: session.shipping.address.country,
+                line1: session.shipping.address.line1,
+                line2: session.shipping.address.line2,
+                postalCode: session.shipping.address.postal_code,
+                state: session.shipping.address.state ?? "N/A",
+              },
+            },
+          });
 
-            await user.save()
-            
-            await mongoose.disconnect()
-            return res.status(201).json({message: "Order created sucessfully!", orderId: savedOrder._id.toString()})
-            
+            const savedOrder = await order.save();
+            console.log(savedOrder)
+
+          const user = await User.findOne({ email: savedOrder.email });
+
+          if (!user) {
+            await mongoose.disconnect();
+            return res
+              .status(404)
+              .json({ message: "No user with this email found!" });
+          }
+
+          user.orders.push(savedOrder);
+
+          await user.save();
+
+          await mongoose.disconnect();
+          return res.status(201).json({
+            message: "Order created sucessfully!",
+            orderId: savedOrder._id.toString(),
+          });
         }
     }
 }

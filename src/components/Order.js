@@ -46,12 +46,12 @@ const Order = ({ id, amount, shippingAmount, date, images, items }) => {
 
       <div className="p-5 sm:p-10">
         <div className="flex space-x-6 overflow-x-auto">
-          {quantity.map((item, i) => (
+          {items.map((item, i) => (
             <div key={i} className="flex flex-col items-center justify-center space-y-2 space-x-4">
               <div className="border rounded-md space-y-2 w-48">
                 <p className="text-center rounded-t-md bg-gray-200 text-gray-600 font-semibold">quantity {item.quantity}</p>
                 <img
-                  src={item.images}
+                  src={item.image}
                   alt=""
                   className="h-20 object-contain sm:h-32 mx-auto p-2"
                 />
